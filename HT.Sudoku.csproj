@@ -7,7 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Emgu.CV" Version="4.2.0.3662" />
+    <PackageReference Include="OpenCvSharp4.Windows" Version="4.2.0.20200208" />
+    <PackageReference Include="Tesseract" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TessData\chi_sim.traineddata">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TessData\eng.traineddata">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

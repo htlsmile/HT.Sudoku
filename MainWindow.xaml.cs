@@ -31,15 +31,23 @@ namespace HT.Sudoku
             {
                 if (item is Button button && "Number".Equals(button.Tag))
                 {
-                    button.Content = null;
                     button.Foreground = new SolidColorBrush(Colors.DodgerBlue);
+                    button.Content = null;
                 }
             }
         }
 
-        private void Scan_Click(object sender, RoutedEventArgs e)
+        private async void Scan_Click(object sender, RoutedEventArgs e)
         {
-
+            (sender as UIElement).IsEnabled = false;
+            Visibility = Visibility.Hidden;
+            await Task.Delay(1000);
+            SudokuCV.CaptureFullScreen();
+            Visibility = Visibility.Visible;
+            Clear_Click(sender, e);
+            await SudokuCV.OCR(SetNumber);
+            Solve_Click(sender, e);
+            (sender as UIElement).IsEnabled = true;
         }
 
         private int[,] Data { get; set; }
@@ -81,19 +89,37 @@ namespace HT.Sudoku
             var numberSelect = new NumberSelect(point);
             if (numberSelect.ShowDialog() == true)
             {
-                button.Content = numberSelect.Number;
-                button.Foreground = new SolidColorBrush(Colors.Black);
-                if (!Sudoku.CheckValue(GetData(), Grid.GetRow(button), Grid.GetColumn(button)))
-                {
-                    button.Content = null;
-                    button.Foreground = new SolidColorBrush(Colors.DodgerBlue);
-                }
+                SetNumber(button, numberSelect.Number);
             }
         }
-    }
 
-    public partial class MainWindow
-    {
+        private void SetNumber(int row, int column, int number) => SetNumber(GetButton(row, column), number);
+
+        private void SetNumber(Button button, int number) => button.Dispatcher.Invoke(() =>
+        {
+            {
+                button.Foreground = new SolidColorBrush(Colors.Black);
+                button.Content = number;
+                if (!Sudoku.CheckValue(GetData(), Grid.GetRow(button), Grid.GetColumn(button)))
+                {
+                    button.Foreground = new SolidColorBrush(Colors.DodgerBlue);
+                    button.Content = null;
+                }
+            }
+        });
+
+        private Button GetButton(int row, int column) => grid.Dispatcher.Invoke(() =>
+        {
+            foreach (var item in grid.Children.Cast<UIElement>().Where(ui => Grid.GetRow(ui) == row && Grid.GetColumn(ui) == column))
+            {
+                if (item is Button button)
+                {
+                    return button;
+                }
+            }
+            return null;
+        });
+
         private int[,] GetData()
         {
             var data = new int[9, 9];
@@ -101,12 +127,10 @@ namespace HT.Sudoku
             {
                 for (int j = 0; j < data.GetLength(1); j++)
                 {
-                    foreach (var item in grid.Children.Cast<UIElement>().Where(ui => Grid.GetRow(ui) == i && Grid.GetColumn(ui) == j))
+                    var button = GetButton(i, j);
+                    if ((button.Foreground as SolidColorBrush).Color == Colors.Black)
                     {
-                        if (item is Button button)
-                        {
-                            data[i, j] = (button.Foreground as SolidColorBrush).Color == Colors.Black ? (int)button.Content : 0;
-                        }
+                        data[i, j] = (int)button.Content;
                     }
                 }
             }
@@ -119,12 +143,10 @@ namespace HT.Sudoku
             {
                 for (int j = 0; j < data.GetLength(1); j++)
                 {
-                    foreach (var item in grid.Children.Cast<UIElement>().Where(ui => Grid.GetRow(ui) == i && Grid.GetColumn(ui) == j))
+                    var button = GetButton(i, j);
+                    if ((button.Foreground as SolidColorBrush).Color != Colors.Black)
                     {
-                        if (item is Button button)
-                        {
-                            button.Content = data[i, j];
-                        }
+                        button.Content = data[i, j];
                     }
                 }
             }

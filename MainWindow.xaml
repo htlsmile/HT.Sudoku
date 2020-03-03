@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HT.Sudoku"
         mc:Ignorable="d"
-        Title="Sudoku" Height="550" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        Title="Sudoku" Height="550" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Topmost="True">
     <Grid x:Name="grid">
         <Grid.Resources>
             <Style TargetType="Border">
@@ -49,7 +49,7 @@
         </Grid.ColumnDefinitions>
 
         <Button Grid.Row="9" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="2" Content="Clear" x:Name="Clear" Click="Clear_Click"/>
-        <Button Grid.Row="9" Grid.RowSpan="3" Grid.Column="3" Grid.ColumnSpan="3" BorderThickness="2" Content="Scan" x:Name="Scan" IsEnabled="False" Click="Scan_Click"/>
+        <Button Grid.Row="9" Grid.RowSpan="3" Grid.Column="3" Grid.ColumnSpan="3" BorderThickness="2" Content="Scan" x:Name="Scan" Click="Scan_Click"/>
         <Button Grid.Row="9" Grid.RowSpan="3" Grid.Column="6" Grid.ColumnSpan="3" BorderThickness="2" Content="Solve" x:Name="Solve" Click="Solve_Click"/>
 
         <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3"/>
