@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HT.Sudoku"
         mc:Ignorable="d"
-        Title="NumberSelect" Height="200" Width="150" WindowStyle="None" KeyUp="Window_KeyUp">
+        Title="NumberSelect" Height="200" Width="150" WindowStyle="None" KeyUp="Window_KeyUp" Topmost="True">
 
     <Grid>
         <Grid.Resources>

@@ -39,7 +39,7 @@ namespace HT.Sudoku
 
         private async void Scan_Click(object sender, RoutedEventArgs e)
         {
-            (sender as UIElement).IsEnabled = false;
+            IsEnabled = false;
             Visibility = Visibility.Hidden;
             await Task.Delay(1000);
             SudokuCV.CaptureFullScreen();
@@ -47,7 +47,7 @@ namespace HT.Sudoku
             Clear_Click(sender, e);
             await SudokuCV.OCR(SetNumber);
             Solve_Click(sender, e);
-            (sender as UIElement).IsEnabled = true;
+            IsEnabled = true;
         }
 
         private int[,] Data { get; set; }
