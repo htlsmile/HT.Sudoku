@@ -1,8 +1,7 @@
-﻿#define ShowMat1
-
-using OpenCvSharp;
+﻿using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace HT.Sudoku
@@ -28,15 +27,14 @@ namespace HT.Sudoku
         public static async Task OCR(Action<int, int, int> setNumber, string fileName = tempFilename) => await Task.Run(() =>
         {
             var src = new Mat(fileName);
+            src.ShowMat_Debug(nameof(CaptureFullScreen));
             var tmp = src.Clone();
             Cv2.CvtColor(src, tmp, ColorConversionCodes.RGB2GRAY);
+            tmp.ShowMat_Debug(nameof(Cv2.CvtColor));
             Cv2.GaussianBlur(tmp, tmp, new Size(3, 3), 0, 0);
+            tmp.ShowMat_Debug(nameof(Cv2.GaussianBlur));
             Cv2.Canny(tmp, tmp, 10, 255);
-#if ShowMat
-            Cv2.ImShow(nameof(Cv2.Canny), tmp);
-            Cv2.WaitKey();
-            Cv2.DestroyWindow(nameof(Cv2.Canny));
-#endif
+            tmp.ShowMat_Debug(nameof(Cv2.Canny));
             Cv2.FindContours(tmp, out Point[][] contours, out HierarchyIndex[] hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             var rect = new Rect();
             var contourCount = new Dictionary<int, int>();
@@ -54,12 +52,8 @@ namespace HT.Sudoku
                             if (r.Height > rect.Height)
                             {
                                 rect = r;
-#if ShowMat
-                                Cv2.Rectangle(src, r, Scalar.Red, 2);
-                                Cv2.ImShow(nameof(Cv2.Rectangle), src);
-                                Cv2.WaitKey();
-                                Cv2.DestroyWindow(nameof(Cv2.Rectangle));
-#endif
+                                src.Rectangle_Debug(r);
+                                src.ShowMat_Debug(nameof(Cv2.Rectangle));
                             }
                         }
                     }
@@ -69,27 +63,17 @@ namespace HT.Sudoku
                     }
                 }
             }
-#if ShowMat
-            Cv2.ImShow(nameof(Cv2.FindContours), src);
-            Cv2.WaitKey();
-            Cv2.DestroyWindow(nameof(Cv2.FindContours));
-#endif
+            src.ShowMat_Debug(nameof(Cv2.FindContours));
             tmp = new Mat(tmp, rect);
             src = new Mat(src, rect);
-#if ShowMat
-            Cv2.ImShow(nameof(Cv2.SelectROI), src);
-            Cv2.WaitKey();
-            Cv2.DestroyWindow(nameof(Cv2.SelectROI));
-#endif
+            src.ShowMat_Debug(nameof(Cv2.SelectROI));
             Cv2.FindContours(tmp, out contours, out hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             for (int i = 0; i < contours.GetLength(0); i++)
             {
                 var r = Cv2.BoundingRect(contours[i]);
                 if (r.Height < (rect.Height / 12.0) && r.Height > (rect.Height / 18.0))
                 {
-#if ShowMat
-                    Cv2.Rectangle(src, r, Scalar.Red, 2);
-#endif
+                    src.Rectangle_Debug(r);
                     if (new Mat(src, r).ImWrite(fileName))
                     {
                         var m = (int)((r.Top + r.Height / 2.0) / (rect.Height / 9.0));
@@ -99,12 +83,20 @@ namespace HT.Sudoku
                     }
                 }
             }
-#if ShowMat
-            Cv2.ImShow(nameof(Cv2.Rectangle), src);
-            Cv2.WaitKey();
-            Cv2.DestroyWindow(nameof(Cv2.Rectangle));
-#endif
+            src.ShowMat_Debug(nameof(Cv2.Rectangle));
         });
+
+        [Conditional("DEBUG")]
+        private static void Rectangle_Debug(this Mat mat, Rect rect) => Cv2.Rectangle(mat, rect, Scalar.Red, 2);
+
+        [Conditional("DEBUG")]
+        private static void ShowMat_Debug(this Mat mat, string name = "")
+        {
+            name += $"-{DateTime.Now}";
+            Cv2.ImShow(name, mat);
+            Cv2.WaitKey();
+            Cv2.DestroyWindow(name);
+        }
 
         private static readonly Tesseract.TesseractEngine OCREngine = new Tesseract.TesseractEngine("TessData", "chi_sim");
 
